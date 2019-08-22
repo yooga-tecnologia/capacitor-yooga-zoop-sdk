@@ -88,18 +88,20 @@ public class YoogaZoopSDK extends Plugin {
 
 
         try {
+            java.math.BigDecimal numero = new java.math.BigDecimal(2);
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
             zoopTerminalPayment.setTerminalPaymentListener(MainActivity.this);
             zoopTerminalPayment.setApplicationDisplayListener(MainActivity.this);
             zoopTerminalPayment.setExtraCardInformationListener(MainActivity.this);
-            zoopTerminalPayment.charge(java.math.BigDecimal 2,
+            zoopTerminalPayment.charge(numero,
             1, 1,
-            'asdasfasd',
-            'sadasdsad',
-            'aopfkopkdposk');
+            "asdasfasd",
+            "sadasdsad",
+            "aopfkopkdposk");
+
             ret.put("value", "true");
         } catch (Exception e) {
-            ret.put('value', e.getMessage());
+            ret.put("value", e.getMessage());
         }
 
         call.success(ret);
