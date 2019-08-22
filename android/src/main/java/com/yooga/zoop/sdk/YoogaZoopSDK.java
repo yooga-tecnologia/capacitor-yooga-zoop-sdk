@@ -96,7 +96,7 @@ public class YoogaZoopSDK extends Plugin {
             1, 1,
             'asdasfasd',
             'sadasdsad',
-            'aopfkopkdposk')
+            'aopfkopkdposk');
             ret.put("value", "true");
         } catch (Exception e) {
             ret.put('value', e.getMessage());
