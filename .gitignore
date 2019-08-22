@@ -7,3 +7,26 @@ ios/Plugin/Plugin.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 ios/Plugin/Plugin.xcworkspace/xcuserdata/sakakibara.xcuserdatad/UserInterfaceState.xcuserstate
 ios/Plugin/Pods/Manifest.lock
 dist/
+.idea
+
+.iml
+
+.gradle
+
+/local.properties
+
+/.idea/workspace.xml
+
+ /.idea/libraries
+
+.DS_Store
+
+/ build
+
+/ captures
+
+.externalNativeBuild
+
+*.idea
+
+.idea / modules.xml

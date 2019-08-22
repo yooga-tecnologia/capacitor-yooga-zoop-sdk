@@ -6,7 +6,7 @@
     s.license = 'MIT'
     s.homepage = 'https://github.com/yooga-tecnologia/yooga-zoop-sdk.git'
     s.author = 'Yooga Tecnologia'
-    s.source = { :git => 'https://github.com/yooga-tecnologia/yooga-zoop-sdk.git', :tag => s.version.to_s }
+    s.source = { :git => 'https://github.com/yooga-tecnologia/capacitor-yooga-zoop-sdk.git', :tag => s.version.to_s }
     s.source_files = 'ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}'
     s.ios.deployment_target  = '11.0'
     s.dependency 'Capacitor'

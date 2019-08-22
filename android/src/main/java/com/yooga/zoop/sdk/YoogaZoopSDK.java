@@ -24,6 +24,6 @@ public class YoogaZoopSDK extends Plugin {
 
         JSObject ret = new JSObject();
         ret.put("value", value);
-        call.success(ret);    		
+        call.success(ret);
     }
 }
