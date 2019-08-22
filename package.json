@@ -1,0 +1,49 @@
+{
+  "name": "yooga-zoop-sdk",
+  "version": "0.0.1",
+  "description": "Encapsulamento via Capacitor para integrar com o Zoop Java SDK",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Yooga Tecnologia",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^3.2.4",
+    "@capacitor/ios": "latest",
+    "@capacitor/android": "latest"
+  },
+  "files": [
+    "dist/",
+    "ios/",
+    "android/",
+    "YoogaZoopSdk.podspec"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yooga-tecnologia/yooga-zoop-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yooga-tecnologia/yooga-zoop-sdk.git/issues"
+  }
+}
