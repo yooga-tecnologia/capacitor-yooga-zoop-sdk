@@ -41,9 +41,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/capacitor-yooga-tecnologia/capacitor-yooga-zoop-sdk.git"
+    "url": "https://github.com/yooga-tecnologia/capacitor-yooga-zoop-sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/capacitor-yooga-tecnologia/capacitor-yooga-zoop-sdk.git/issues"
+    "url": "https://github.com/yooga-tecnologia/capacitor-yooga-zoop-sdk.git/issues"
   }
 }
