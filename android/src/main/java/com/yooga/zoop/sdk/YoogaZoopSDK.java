@@ -15,8 +15,13 @@ import com.zoop.zoopandroidsdk.TerminalListManager;
 import com.zoop.zoopandroidsdk.ZoopAPI;
 import com.zoop.zoopandroidsdk.ZoopTerminalPayment;
 import com.zoop.zoopandroidsdk.ZoopTerminalTransaction;
+import com.zoop.zoopandroidsdk.terminal.ApplicationDisplayListener;
+import com.zoop.zoopandroidsdk.terminal.DeviceSelectionListener;
+import com.zoop.zoopandroidsdk.terminal.ExtraCardInformationListener;
+import com.zoop.zoopandroidsdk.terminal.TerminalMessageType;
 import com.zoop.zoopandroidsdk.terminal.TerminalPaymentListener;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -36,7 +41,7 @@ public class YoogaZoopSDK extends Plugin {
     }
 
     @PluginMethod()
-    public void init(PluginCall call) {
+    public void getBluetoothDevices(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
@@ -45,14 +50,21 @@ public class YoogaZoopSDK extends Plugin {
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
-            List<String> s = new ArrayList<String>();
+            JSONArray s = new JSONArray();
+
 
             for(BluetoothDevice bt : pairedDevices) {
-                s.add(bt.getName());
+                JSONObject obj = new JSONObject();
+
+                obj.put("name",bt.getName());
+                obj.put("type", bt.getType());
+                obj.put("address", bt.getAddress());
+                obj.put("class", bt.getBluetoothClass());
+                s.put(obj);
             }
 
-             ret.put("value", s);
-             call.success(ret);
+            ret.put("devices", s);
+            call.success(ret);
         } catch(Exception e) {
             value = e.getMessage();
         }
@@ -65,16 +77,34 @@ public class YoogaZoopSDK extends Plugin {
     public void setBluetoothDevice(PluginCall call) {
         JSObject ret = new JSObject();
 
+        try {
+            ZoopAPI.initialize(this.getContext());
+        } catch(Exception e) {
+
+        }
+
         // ZoopTerminalPayment terminal = new ZoopTerminalPayment();
-        TerminalListManager tl = new TerminalListManager();
+        TerminalListManager tl = new TerminalListManager(null, null);
 
         JSONObject bluetoothDevice = new JSONObject();
-        bluetoothDevice.put("name", call.getString("name"));
-        bluetoothDevice.put("uri", call.getString("uri"));
-        bluetoothDevice.put("communication", call.getString("communication"));
-        bluetoothDevice.put("persistent", call.getString("persistent"));
-        bluetoothDevice.put("dateTimeDetected", call.getString("dateTimeDetected"));
+        try {
 
+            bluetoothDevice.put("name", "BC:14:EF:93:E4:F0");
+            bluetoothDevice.put("uri", "btspp://BC:14:EF:93:E4:F0");
+            bluetoothDevice.put("communication", call.getString("communication"));
+            bluetoothDevice.put("persistent", call.getString("persistent"));
+            bluetoothDevice.put("dateTimeDetected", call.getString("dateTimeDetected"));
+
+            tl.setSelectedTerminal(bluetoothDevice);
+            System.out.println("============================= BLUETOOTH SETADO?? =======================");
+
+        } catch(Exception e) {
+            System.out.println("============================= enviaBluetooth =======================");
+            System.out.println(e.getMessage());
+            System.out.println("============================= enviaBluetooth =======================");
+            ret.put("value", e);
+            call.success(ret);
+        }
 
         tl.requestZoopDeviceSelection(bluetoothDevice);
 
@@ -84,23 +114,99 @@ public class YoogaZoopSDK extends Plugin {
 
     @PluginMethod()
     public void transaction(PluginCall call) {
+
         JSObject ret = new JSObject();
 
 
         try {
-            java.math.BigDecimal numero = new java.math.BigDecimal(2);
+            ZoopAPI.sMarketplaceId = "9e55e10ff08746daaee031e207935494";
+            ZoopAPI.sSellerId = "2e2ce9fcc0454ec290a6c90fc66624e7";
+            ZoopAPI.sPublishableKey = "zpk_test_pxfPkCBWxYWzyKWR3toFW3Fd";
+
+            java.math.BigDecimal numero = new java.math.BigDecimal(1);
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
-            zoopTerminalPayment.setTerminalPaymentListener(MainActivity.this);
-            zoopTerminalPayment.setApplicationDisplayListener(MainActivity.this);
-            zoopTerminalPayment.setExtraCardInformationListener(MainActivity.this);
+
+            TerminalPaymentListener tp = new TerminalPaymentListener() {
+                @Override
+                public void paymentFailed(JSONObject jsonObject) {
+                    System.out.println("paymentFailed");
+                    System.out.println(jsonObject);
+                    System.out.println("============== paymentFailed ==============");
+
+                }
+
+                @Override
+                public void paymentDuplicated(JSONObject jsonObject) {
+                    System.out.println("paymentDuplicated");
+                }
+
+                @Override
+                public void paymentSuccessful(JSONObject jsonObject) {
+                    System.out.println("paymentSuccessful");
+                }
+
+                @Override
+                public void paymentAborted() {
+                    System.out.println("paymentAborted");
+                }
+
+                @Override
+                public void cardholderSignatureRequested() {
+                    System.out.println("cardholderSignatureRequested");
+                }
+
+                @Override
+                public void currentChargeCanBeAbortedByUser(boolean b) {
+                    System.out.println("currentChargeCanBeAbortedByUser");
+                }
+
+                @Override
+                public void signatureResult(int i) {
+                    System.out.println("signatureResult");
+                }
+            };
+
+            zoopTerminalPayment.setTerminalPaymentListener(tp);
+            zoopTerminalPayment.setApplicationDisplayListener(new ApplicationDisplayListener() {
+                @Override
+                public void showMessage(String s, TerminalMessageType terminalMessageType) {
+                    System.out.println("showMessage");
+                }
+
+                @Override
+                public void showMessage(String s, TerminalMessageType terminalMessageType, String s1) {
+
+                    System.out.println("showMessage2");
+                }
+            });
+            zoopTerminalPayment.setExtraCardInformationListener(new ExtraCardInformationListener() {
+                @Override
+                public void cardLast4DigitsRequested() {
+                    System.out.println("cardLast4DigitsRequested");
+                }
+
+                @Override
+                public void cardExpirationDateRequested() {
+                    System.out.println("cardExpirationDateRequested");
+
+                }
+
+                @Override
+                public void cardCVCRequested() {
+                    System.out.println("cardCVCRequested");
+
+                }
+            });
             zoopTerminalPayment.charge(numero,
-            1, 1,
-            "asdasfasd",
-            "sadasdsad",
-            "aopfkopkdposk");
+                    1, 1,
+                    "3249465a7753536b62545a6a684b0000",
+                    "1e5ee2e290d040769806c79e6ef94ee1",
+                    "zpk_test_EzCkzFFKibGQU6HFq7EYVuxI");
 
             ret.put("value", "true");
         } catch (Exception e) {
+            System.out.println("ERRO TRANSACTION");
+            System.out.println(e.getMessage());
             ret.put("value", e.getMessage());
         }
 
