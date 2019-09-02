@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 @NativePlugin()
 public class YoogaZoopSDK extends Plugin {
@@ -79,24 +80,51 @@ public class YoogaZoopSDK extends Plugin {
 
         try {
             ZoopAPI.initialize(this.getContext());
+            System.out.println("INICIALOUZ FILHO DA PUTA ============================================================");
         } catch(Exception e) {
-
+            System.out.println(e.getMessage());
         }
 
         // ZoopTerminalPayment terminal = new ZoopTerminalPayment();
-        TerminalListManager tl = new TerminalListManager(null, null);
+        TerminalListManager tl = new TerminalListManager(new DeviceSelectionListener() {
+            @Override
+            public void showDeviceListForUserSelection(Vector<JSONObject> vector) {
+                System.out.println("==================== showDeviceListForUserSelection ===================");
+            }
+
+            @Override
+            public void updateDeviceListForUserSelection(JSONObject jsonObject, Vector<JSONObject> vector, int i) {
+                System.out.println("==================== updateDeviceListForUserSelection ===================");
+
+            }
+
+            @Override
+            public void bluetoothIsNotEnabledNotification() {
+                System.out.println("==================== bluetoothIsNotEnabledNotification ===================");
+            }
+
+            @Override
+            public void deviceSelectedResult(JSONObject jsonObject, Vector<JSONObject> vector, int i) {
+                System.out.println("==================== deviceSelectedResult ===================");
+            }
+        }, this.getContext());
 
         JSONObject bluetoothDevice = new JSONObject();
+
         try {
 
-            bluetoothDevice.put("name", "BC:14:EF:93:E4:F0");
+            bluetoothDevice.put("name", "PAX-7D410714");
             bluetoothDevice.put("uri", "btspp://BC:14:EF:93:E4:F0");
-            bluetoothDevice.put("communication", call.getString("communication"));
-            bluetoothDevice.put("persistent", call.getString("persistent"));
-            bluetoothDevice.put("dateTimeDetected", call.getString("dateTimeDetected"));
+            bluetoothDevice.put("communication", "Bluetooth");
+            bluetoothDevice.put("persistent", true);
+            bluetoothDevice.put("dateTimeDetected", "2019-08-30 10:00");
 
+            tl.startTerminalsDiscovery();
             tl.setSelectedTerminal(bluetoothDevice);
-            System.out.println("============================= BLUETOOTH SETADO?? =======================");
+            tl.requestZoopDeviceSelection(bluetoothDevice);
+            tl.finishTerminalDiscovery();
+
+            System.out.println("============================= BLUETOOTH SETADO =======================");
 
         } catch(Exception e) {
             System.out.println("============================= enviaBluetooth =======================");
@@ -119,12 +147,13 @@ public class YoogaZoopSDK extends Plugin {
 
 
         try {
-            ZoopAPI.sMarketplaceId = "9e55e10ff08746daaee031e207935494";
-            ZoopAPI.sSellerId = "2e2ce9fcc0454ec290a6c90fc66624e7";
+            ZoopAPI.sMarketplaceId = "3249465a7753536b62545a6a684b0000";
+            ZoopAPI.sSellerId = "1e5ee2e290d040769806c79e6ef94ee1";
             ZoopAPI.sPublishableKey = "zpk_test_pxfPkCBWxYWzyKWR3toFW3Fd";
 
             java.math.BigDecimal numero = new java.math.BigDecimal(1);
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
+
 
             TerminalPaymentListener tp = new TerminalPaymentListener() {
                 @Override
@@ -143,6 +172,7 @@ public class YoogaZoopSDK extends Plugin {
                 @Override
                 public void paymentSuccessful(JSONObject jsonObject) {
                     System.out.println("paymentSuccessful");
+                    bridge.triggerWindowJSEvent("paymentSuccessful", "{ 'data': " + jsonObject + " }");
                 }
 
                 @Override
@@ -171,12 +201,13 @@ public class YoogaZoopSDK extends Plugin {
                 @Override
                 public void showMessage(String s, TerminalMessageType terminalMessageType) {
                     System.out.println("showMessage");
+                    bridge.triggerWindowJSEvent("showMessage", "{ 'message': '" + s + "'  }");
                 }
 
                 @Override
                 public void showMessage(String s, TerminalMessageType terminalMessageType, String s1) {
-
                     System.out.println("showMessage2");
+                    bridge.triggerWindowJSEvent("showMessage", "{ 'message': '" + s + "'  }");
                 }
             });
             zoopTerminalPayment.setExtraCardInformationListener(new ExtraCardInformationListener() {
