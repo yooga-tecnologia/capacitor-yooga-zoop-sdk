@@ -112,7 +112,7 @@ public class YoogaZoopSDK extends Plugin {
         try {
 
             bluetoothDevice.put("name", call.getString("name"));
-            bluetoothDevice.put("uri", call.getString("address"));
+            bluetoothDevice.put("uri", call.getString("uri"));
             bluetoothDevice.put("communication", call.getString("communication"));
             bluetoothDevice.put("persistent", call.getBoolean("persistent"));
             bluetoothDevice.put("dateTimeDetected", call.getString("dateTimeDetected"));
@@ -142,10 +142,27 @@ public class YoogaZoopSDK extends Plugin {
     public void transaction(PluginCall call) {
 
         JSObject ret = new JSObject();
-        
+
         try {
-            java.math.BigDecimal valor = new java.math.BigDecimal(call.getDouble("value"));
+            System.out.println("========================= VALUE BRUTO =======================");
+            System.out.println(call.getString("marketplace_id"));
+
+            java.math.BigDecimal valor;
+            try {
+                valor = new java.math.BigDecimal(call.getDouble("value"));
+            } catch(Exception e) {
+                valor = new java.math.BigDecimal(call.getInt("value"));
+            }
+
+
+            System.out.println("========================= VALUE BRUTO =======================");
+
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
+
+            ZoopAPI.sMarketplaceId = call.getString("marketplace_id");
+            ZoopAPI.sPublishableKey = call.getString("publishable_key");
+            ZoopAPI.sSellerId = call.getString("seller_id");
+
 
             //=============================================================================================
             // Terminal Payment Listener
@@ -157,7 +174,7 @@ public class YoogaZoopSDK extends Plugin {
                     System.out.println("paymentFailed");
                     System.out.println(jsonObject);
                     System.out.println("============== paymentFailed ==============");
-
+                    bridge.triggerWindowJSEvent("paymentFailed", "{ 'data': " + jsonObject + " }");
                 }
 
                 @Override
