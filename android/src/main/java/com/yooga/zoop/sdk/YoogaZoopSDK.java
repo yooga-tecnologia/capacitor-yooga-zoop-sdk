@@ -24,8 +24,6 @@ import com.zoop.zoopandroidsdk.terminal.TerminalPaymentListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -113,11 +111,11 @@ public class YoogaZoopSDK extends Plugin {
 
         try {
 
-            bluetoothDevice.put("name", "PAX-7D410714");
-            bluetoothDevice.put("uri", "btspp://BC:14:EF:93:E4:F0");
-            bluetoothDevice.put("communication", "Bluetooth");
-            bluetoothDevice.put("persistent", true);
-            bluetoothDevice.put("dateTimeDetected", "2019-08-30 10:00");
+            bluetoothDevice.put("name", call.getString("name"));
+            bluetoothDevice.put("uri", call.getString("address"));
+            bluetoothDevice.put("communication", call.getString("communication"));
+            bluetoothDevice.put("persistent", call.getBoolean("persistent"));
+            bluetoothDevice.put("dateTimeDetected", call.getString("dateTimeDetected"));
 
             tl.startTerminalsDiscovery();
             tl.setSelectedTerminal(bluetoothDevice);
@@ -144,16 +142,14 @@ public class YoogaZoopSDK extends Plugin {
     public void transaction(PluginCall call) {
 
         JSObject ret = new JSObject();
-
-
+        
         try {
-            ZoopAPI.sMarketplaceId = "3249465a7753536b62545a6a684b0000";
-            ZoopAPI.sSellerId = "1e5ee2e290d040769806c79e6ef94ee1";
-            ZoopAPI.sPublishableKey = "zpk_test_pxfPkCBWxYWzyKWR3toFW3Fd";
-
-            java.math.BigDecimal numero = new java.math.BigDecimal(1);
+            java.math.BigDecimal valor = new java.math.BigDecimal(call.getDouble("value"));
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
 
+            //=============================================================================================
+            // Terminal Payment Listener
+            //=============================================================================================
 
             TerminalPaymentListener tp = new TerminalPaymentListener() {
                 @Override
@@ -196,8 +192,11 @@ public class YoogaZoopSDK extends Plugin {
                 }
             };
 
-            zoopTerminalPayment.setTerminalPaymentListener(tp);
-            zoopTerminalPayment.setApplicationDisplayListener(new ApplicationDisplayListener() {
+            //=============================================================================================
+            // Application Display Listener
+            //=============================================================================================
+
+            ApplicationDisplayListener adl = new ApplicationDisplayListener() {
                 @Override
                 public void showMessage(String s, TerminalMessageType terminalMessageType) {
                     System.out.println("showMessage");
@@ -209,8 +208,13 @@ public class YoogaZoopSDK extends Plugin {
                     System.out.println("showMessage2");
                     bridge.triggerWindowJSEvent("showMessage", "{ 'message': '" + s + "'  }");
                 }
-            });
-            zoopTerminalPayment.setExtraCardInformationListener(new ExtraCardInformationListener() {
+            };
+
+            //=============================================================================================
+            // Extra Card Information Listener
+            //=============================================================================================
+
+            ExtraCardInformationListener ecil = new ExtraCardInformationListener() {
                 @Override
                 public void cardLast4DigitsRequested() {
                     System.out.println("cardLast4DigitsRequested");
@@ -227,12 +231,23 @@ public class YoogaZoopSDK extends Plugin {
                     System.out.println("cardCVCRequested");
 
                 }
-            });
-            zoopTerminalPayment.charge(numero,
-                    1, 1,
-                    "3249465a7753536b62545a6a684b0000",
-                    "1e5ee2e290d040769806c79e6ef94ee1",
-                    "zpk_test_EzCkzFFKibGQU6HFq7EYVuxI");
+            };
+
+            //=============================================================================================
+            // Set Listeners
+            //=============================================================================================
+
+            zoopTerminalPayment.setTerminalPaymentListener(tp);
+            zoopTerminalPayment.setApplicationDisplayListener(adl);
+            zoopTerminalPayment.setExtraCardInformationListener(ecil);
+            zoopTerminalPayment.charge(
+                valor,
+                call.getInt("payment_option"),
+                call.getInt("installments"),
+                call.getString("marketplace_id"),
+                call.getString("seller_id"),
+                call.getString("publishable_key")
+            );
 
             ret.put("value", "true");
         } catch (Exception e) {
