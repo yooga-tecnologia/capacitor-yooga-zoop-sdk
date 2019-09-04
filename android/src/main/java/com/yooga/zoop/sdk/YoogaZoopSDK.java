@@ -251,12 +251,14 @@ public class YoogaZoopSDK extends Plugin {
                     bridge.triggerWindowJSEvent("showMessage", "{ 'message': '" + s + "'  }");
                 }
             };
+        }
 
+        if(this.ecil == null) {
             //=============================================================================================
             // Extra Card Information Listener
             //=============================================================================================
 
-            ExtraCardInformationListener ecil = new ExtraCardInformationListener() {
+            this.ecil = new ExtraCardInformationListener() {
                 @Override
                 public void cardLast4DigitsRequested() {
                     System.out.println("cardLast4DigitsRequested");
@@ -275,29 +277,7 @@ public class YoogaZoopSDK extends Plugin {
                 }
             };
 
-            //=============================================================================================
-            // Set Listeners
-            //=============================================================================================
-
-            zoopTerminalPayment.setTerminalPaymentListener(tp);
-            zoopTerminalPayment.setApplicationDisplayListener(adl);
-            zoopTerminalPayment.setExtraCardInformationListener(ecil);
-            zoopTerminalPayment.charge(
-                valor,
-                call.getInt("payment_option"),
-                call.getInt("installments"),
-                call.getString("marketplace_id"),
-                call.getString("seller_id"),
-                call.getString("publishable_key")
-            );
-
-            ret.put("value", "true");
-        } catch (Exception e) {
-            System.out.println("ERRO TRANSACTION");
-            System.out.println(e.getMessage());
-            ret.put("value", e.getMessage());
         }
-
-        call.success(ret);
     }
+
 }
