@@ -2,8 +2,6 @@ package com.yooga.zoop.sdk;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.widget.ArrayAdapter;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
@@ -14,7 +12,6 @@ import com.getcapacitor.PluginMethod;
 import com.zoop.zoopandroidsdk.TerminalListManager;
 import com.zoop.zoopandroidsdk.ZoopAPI;
 import com.zoop.zoopandroidsdk.ZoopTerminalPayment;
-import com.zoop.zoopandroidsdk.ZoopTerminalTransaction;
 import com.zoop.zoopandroidsdk.terminal.ApplicationDisplayListener;
 import com.zoop.zoopandroidsdk.terminal.DeviceSelectionListener;
 import com.zoop.zoopandroidsdk.terminal.ExtraCardInformationListener;
@@ -29,6 +26,9 @@ import java.util.Vector;
 
 @NativePlugin()
 public class YoogaZoopSDK extends Plugin {
+    private TerminalPaymentListener tp;
+    private ApplicationDisplayListener adl;
+    private ExtraCardInformationListener ecil;
 
     @PluginMethod()
     public void echo(PluginCall call) {
@@ -144,18 +144,13 @@ public class YoogaZoopSDK extends Plugin {
         JSObject ret = new JSObject();
 
         try {
-            System.out.println("========================= VALUE BRUTO =======================");
-            System.out.println(call.getString("marketplace_id"));
-
+            this.initialize();
             java.math.BigDecimal valor;
             try {
                 valor = new java.math.BigDecimal(call.getDouble("value"));
             } catch(Exception e) {
                 valor = new java.math.BigDecimal(call.getInt("value"));
             }
-
-
-            System.out.println("========================= VALUE BRUTO =======================");
 
             ZoopTerminalPayment zoopTerminalPayment = new ZoopTerminalPayment();
 
@@ -165,10 +160,38 @@ public class YoogaZoopSDK extends Plugin {
 
 
             //=============================================================================================
+            // Set Listeners
+            //=============================================================================================
+
+            zoopTerminalPayment.setTerminalPaymentListener(this.tp);
+            zoopTerminalPayment.setApplicationDisplayListener(this.adl);
+            zoopTerminalPayment.setExtraCardInformationListener(this.ecil);
+            zoopTerminalPayment.charge(
+                    valor,
+                    call.getInt("payment_option"),
+                    call.getInt("installments"),
+                    call.getString("marketplace_id"),
+                    call.getString("seller_id"),
+                    call.getString("publishable_key")
+            );
+
+            ret.put("value", "true");
+        } catch (Exception e) {
+            System.out.println("ERRO TRANSACTION");
+            System.out.println(e.getMessage());
+            ret.put("value", e.getMessage());
+        }
+
+        call.success(ret);
+    }
+
+    private void initialize() {
+        if(this.tp == null) {
+            //=============================================================================================
             // Terminal Payment Listener
             //=============================================================================================
 
-            TerminalPaymentListener tp = new TerminalPaymentListener() {
+            this.tp = new TerminalPaymentListener() {
                 @Override
                 public void paymentFailed(JSONObject jsonObject) {
                     System.out.println("paymentFailed");
@@ -208,12 +231,14 @@ public class YoogaZoopSDK extends Plugin {
                     System.out.println("signatureResult");
                 }
             };
+        }
 
+        if(this.adl == null) {
             //=============================================================================================
             // Application Display Listener
             //=============================================================================================
 
-            ApplicationDisplayListener adl = new ApplicationDisplayListener() {
+            this.adl = new ApplicationDisplayListener() {
                 @Override
                 public void showMessage(String s, TerminalMessageType terminalMessageType) {
                     System.out.println("showMessage");
