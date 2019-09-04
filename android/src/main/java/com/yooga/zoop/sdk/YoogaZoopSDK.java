@@ -12,6 +12,8 @@ import com.getcapacitor.PluginMethod;
 import com.zoop.zoopandroidsdk.TerminalListManager;
 import com.zoop.zoopandroidsdk.ZoopAPI;
 import com.zoop.zoopandroidsdk.ZoopTerminalPayment;
+import com.zoop.zoopandroidsdk.ZoopTerminalTransaction;
+import com.zoop.zoopandroidsdk.commons.ZoopCancelManager;
 import com.zoop.zoopandroidsdk.terminal.ApplicationDisplayListener;
 import com.zoop.zoopandroidsdk.terminal.DeviceSelectionListener;
 import com.zoop.zoopandroidsdk.terminal.ExtraCardInformationListener;

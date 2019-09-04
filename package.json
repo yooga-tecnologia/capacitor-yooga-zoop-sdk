@@ -1,6 +1,6 @@
 {
   "name": "capacitor-yooga-zoop-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Encapsulamento via Capacitor para integrar com o Zoop Java SDK",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
